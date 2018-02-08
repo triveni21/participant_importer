@@ -99,7 +99,6 @@ module ParticipantImporter
       '<br />'\
       '<br />'\
       "<div style='margin-top: 10px;'>&nbsp;</div>"
-      debugger
     handler = Proc.new do |exception, attempt_number|
       if exception.present?
         Rails.logger.error("Failed to send report at #{attempt_number} time. Exception #{exception.message}")
@@ -183,18 +182,12 @@ module ParticipantImporter
     # end
 
     def generate_record_keeper_report
-      # create_formatted_payroll_records(payroll_records)
-      lines = []
+      config = @config.plan.record_keeper#fetch('record_keeper')
+      report = FormatReport.new
+      report.pay_date @date
 
-      column_titles = @records.first.keys
-      lines.push(column_titles.join(','))
-
-      @records.each do |record|
-        cells = record.values
-        lines.push(cells.join(','))
-      end
-
-      return lines.join("\n")
+      report.config = @config
+      return report.generate_report(@records)
     end
 
     # This method needs to be synched with the same method from payroll repo
